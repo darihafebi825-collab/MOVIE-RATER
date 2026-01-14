@@ -1,0 +1,205 @@
+{% extends "bases.html" %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us | Movie Rating App</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-black: #0a0a0a;
+    --card-black: #141414;
+    --red: #e50914;
+    --red-glow: rgba(229, 9, 20, 0.4);
+    --text-light: #f5f5f5;
+    --text-muted: #9a9a9a;
+    --gold: #ffd700;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body { 
+    font-family: 'Poppins', sans-serif; 
+    background: radial-gradient(ellipse at top, #1a0000, #0a0a0a);
+    color: var(--text-light); 
+    line-height: 1.6; 
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Full Page Poster Grid Background */
+#page-bg {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px,1fr));
+    grid-auto-rows:200px;
+    gap:10px;
+    z-index:0;
+    opacity: 0.28; /* updated for visibility */
+    pointer-events:none;
+    filter: brightness(0.6);
+}
+
+/* Poster Items */
+#page-bg .poster-item {
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(0.6) brightness(0.8); /* updated for visibility */
+    animation: floatPoster 20s ease-in-out infinite;
+}
+
+#page-bg .poster-item:nth-child(odd) { animation-delay:-5s; }
+#page-bg .poster-item:nth-child(3n) { animation-delay:-10s; }
+#page-bg .poster-item:nth-child(4n) { animation-delay:-15s; }
+
+@keyframes floatPoster {
+    0%,100% { transform: translateY(0) scale(1); opacity:0.15; }
+    50% { transform: translateY(-20px) scale(1.05); opacity:0.3; }
+}
+
+/* Hero Section */
+.about-hero { 
+    text-align: center; 
+    padding: 100px 20px 60px;
+    position: relative;
+    z-index: 2;
+}
+
+.about-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--red-glow) 0%, transparent 70%);
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.about-hero h1 { 
+    font-size: clamp(3rem, 6vw, 5rem); 
+    font-weight: 800; 
+    background: linear-gradient(135deg, var(--red), #ff3030);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 3px; 
+    margin-bottom: 20px;
+    text-shadow: 0 0 40px var(--red-glow);
+}
+
+.about-hero p { 
+    max-width: 700px; 
+    margin: 0 auto; 
+    font-size: clamp(1rem, 1.8vw, 1.2rem); 
+    color: var(--text-muted); 
+    font-weight: 300;
+    letter-spacing: 0.5px;
+}
+
+/* Gallery Section */
+.gallery-section {
+    padding: 60px 20px;
+    position: relative;
+    z-index:2;
+}
+
+.section-title {
+    text-align: center;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 700;
+    color: var(--red);
+    margin-bottom: 50px;
+}
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+    margin: 15px auto 0;
+}
+
+.gallery-section p {
+    max-width: 900px;
+    margin: 0 auto;
+    font-size: 1.3rem;
+    color: #f5f5f5;
+    line-height:1.9;
+    letter-spacing:0.5px;
+}
+
+/* Fade-in animations */
+.fade-in { 
+    opacity:0; transform:translateY(40px); transition: all 1s cubic-bezier(0.4,0,0.2,1); 
+}
+.fade-in.show { opacity:1; transform:translateY(0); }
+
+/* Responsive */
+@media(max-width:768px){
+    .about-hero h1{ font-size: clamp(2.2rem,8vw,3.5rem);}
+    .about-hero p{ font-size: clamp(0.9rem,3vw,1.1rem);}
+    .section-title{ font-size: clamp(1.5rem,5vw,2.2rem);}
+    .gallery-section p{ font-size: clamp(1rem,3vw,1.2rem);}
+}
+</style>
+</head>
+<body>
+
+<!-- Full Page Poster Background -->
+<div id="page-bg"></div>
+
+<section class="about-hero fade-in">
+    <h1>MOVIE RATING APP</h1>
+    <p> Built in 2026, TICKIT was created with one clear goal: to help movie 
+        lovers save their tickets for the good ones.</p>
+</section>
+
+<section class="gallery-section fade-in">
+    <h2 class="section-title">Why Choose TICKIT?</h2>
+    <p>See what others think before you dive in — because spoilers are bad, but  reviews are gold!</p>
+</section>
+
+<script>
+// Intersection Observer for fade-in animations
+const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry,index)=>{
+        if(entry.isIntersecting){ setTimeout(()=>{ entry.target.classList.add('show'); }, index*100); }
+    });
+},{threshold:0.1});
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Array of poster URLs
+const posters = [
+    'https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg',
+    'https://image.tmdb.org/t/p/w500/qNBAXBIQlnOThrVvA6mA2B5ggV6.jpg',
+    'https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg',
+    'https://image.tmdb.org/t/p/w500/87hTDiay2N2qWyX4Ds7ybXi9h8I.jpg',
+    'https://image.tmdb.org/t/p/w500/cezWGskPY5x7GaglTTRN4Fugfb8.jpg',
+    'https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg',
+    'https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg',
+    'https://image.tmdb.org/t/p/w500/rCzpDGLbOoPwLjy3OAm5NUPOTrC.jpg',
+    'https://image.tmdb.org/t/p/w500/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg',
+    'https://image.tmdb.org/t/p/w500/rr7E0NoGKxvbkb89eR1GwfoYjpA.jpg'
+];
+
+// Generate 555 poster divs
+const bgContainer = document.getElementById('page-bg');
+for(let i=0;i<555;i++){
+    const div = document.createElement('div');
+    div.className = 'poster-item';
+    div.style.backgroundImage = `url('${posters[i % posters.length]}')`;
+    bgContainer.appendChild(div);
+}
+</script>
+
+</body>
+</html>
+
+{% endblock %}

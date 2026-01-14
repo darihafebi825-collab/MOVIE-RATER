@@ -1,0 +1,966 @@
+{% extends "bases.html" %}
+{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Movie Collection</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+    color: #fff;
+    padding: 0;
+    margin: 0;
+    min-height: 100vh;
+}
+
+h1 {
+    text-align: center;
+    margin: 40px 0 10px;
+    font-size: 3rem;
+    font-weight: 300;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #ffffff 0%, #e50914 50%, #ffffff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 40px rgba(229, 9, 20, 0.3);
+}
+
+.tagline {
+    text-align: center;
+    margin: 0 0 40px;
+    font-size: 0.9rem;
+    font-weight: 400;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 10px 20px;
+}
+
+.tagline .red-text {
+    color: #e50914;
+    font-weight: 600;
+    text-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+}
+
+.tagline .separator {
+    color: #555;
+    margin: 0 15px;
+    font-weight: 100;
+}
+
+.tagline .black-text {
+    color: #d4d4d4;
+    font-weight: 300;
+}
+
+.search-container {
+    max-width: 600px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
+}
+
+.search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    width: 100%;
+    padding: 15px 50px 15px 20px;
+    border-radius: 30px;
+    border: 2px solid rgba(229, 9, 20, 0.3);
+    background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+    color: #fff;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+}
+
+.search-input::placeholder {
+    color: #666;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #e50914;
+    box-shadow: 0 0 20px rgba(229, 9, 20, 0.4);
+}
+
+.search-icon {
+    position: absolute;
+    right: 20px;
+    font-size: 1.2rem;
+    color: #e50914;
+    pointer-events: none;
+}
+
+.filter-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(229, 9, 20, 0.3);
+    background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+    color: #b3b3b3;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+}
+
+.filter-btn:hover {
+    border-color: #e50914;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #e50914 0%, #b0060f 100%);
+    color: #fff;
+    border-color: #e50914;
+}
+
+.movies-grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 40px;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 25px;
+}
+
+.movie-card {
+    background: linear-gradient(145deg, #1e1e1e 0%, #0f0f0f 100%);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(229, 9, 20, 0.2);
+    position: relative;
+    cursor: pointer;
+}
+
+.movie-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(229, 9, 20, 0.05) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.movie-card:hover::before {
+    opacity: 1;
+}
+
+.movie-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(229, 9, 20, 0.3),
+                0 10px 20px rgba(0, 0, 0, 0.8);
+    border-color: rgba(229, 9, 20, 0.6);
+}
+
+.movie-card.expanded {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+.movie-compact {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.movie-compact img {
+    width: 100%;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    transition: transform 0.3s ease;
+}
+
+.movie-compact img:hover {
+    transform: scale(1.03);
+}
+
+.movie-compact h2 {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.movie-compact p {
+    font-size: 0.7rem;
+    line-height: 1.4;
+    color: #a0a0a0;
+    font-weight: 300;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    flex: 1;
+}
+
+.movie-compact .stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 0.65rem;
+    font-weight: 300;
+}
+
+.movie-compact .stat-item {
+    color: #b3b3b3;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.movie-compact .stat-item span {
+    color: #e50914;
+    font-weight: 600;
+}
+
+.movie-expanded {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+}
+
+.movie-card.expanded .movie-compact {
+    display: none;
+}
+
+.movie-card.expanded .movie-expanded {
+    display: flex;
+}
+
+.expanded-top {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.expanded-left {
+    flex: 0 0 140px;
+}
+
+.expanded-left img {
+    width: 100%;
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+}
+
+.expanded-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.expanded-info h2 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.expanded-info p {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: #a0a0a0;
+    font-weight: 300;
+    margin-bottom: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.stats {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 12px;
+    font-size: 0.75rem;
+    font-weight: 300;
+}
+
+.stat-item {
+    color: #b3b3b3;
+}
+
+.stat-item span {
+    color: #e50914;
+    font-weight: 600;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.movie-card button {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: none;
+    font-weight: 500;
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-like {
+    background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+    color: #000;
+    flex: 1;
+}
+
+.btn-like:hover {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+}
+
+.btn-dislike {
+    background: linear-gradient(135deg, #e50914 0%, #b0060f 100%);
+    color: #fff;
+    flex: 1;
+}
+
+.btn-dislike:hover {
+    background: linear-gradient(135deg, #b0060f 0%, #8a0509 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
+}
+
+.btn-close {
+    background: linear-gradient(135deg, #555 0%, #333 100%);
+    color: #fff;
+}
+
+.btn-close:hover {
+    background: linear-gradient(135deg, #666 0%, #444 100%);
+    transform: translateY(-2px);
+}
+
+.comment-section {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.comment-section input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid rgba(229, 9, 20, 0.3);
+    background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+    color: #fff;
+    font-size: 0.7rem;
+    transition: all 0.3s ease;
+    font-weight: 300;
+}
+
+.comment-section input:focus {
+    outline: none;
+    border-color: #e50914;
+    box-shadow: 0 0 10px rgba(229, 9, 20, 0.3);
+}
+
+.btn-comment {
+    background: linear-gradient(135deg, #e50914 0%, #b0060f 100%);
+    color: #fff;
+    padding: 8px 12px;
+}
+
+.btn-comment:hover {
+    background: linear-gradient(135deg, #ff0a16 0%, #e50914 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
+}
+
+.comment-list {
+    list-style: none;
+    padding: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: linear-gradient(145deg, #0a0a0a 0%, #050505 100%);
+    border-radius: 5px;
+    border: 1px solid rgba(229, 9, 20, 0.15);
+    flex: 1;
+}
+
+.comment-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.comment-list::-webkit-scrollbar-track {
+    background: #0a0a0a;
+    border-radius: 3px;
+}
+
+.comment-list::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #e50914 0%, #b0060f 100%);
+    border-radius: 3px;
+}
+
+.comment-list::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #ff0a16 0%, #e50914 100%);
+}
+
+.comment-list li {
+    font-size: 0.68rem;
+    margin: 5px 0;
+    padding: 6px 8px;
+    background: linear-gradient(145deg, #1a1a1a 0%, #0f0f0f 100%);
+    border-radius: 4px;
+    border-left: 2px solid #e50914;
+    font-weight: 300;
+    transition: all 0.2s ease;
+}
+
+.comment-list li:hover {
+    background: linear-gradient(145deg, #202020 0%, #151515 100%);
+    border-left-width: 3px;
+}
+
+.comment-list li strong {
+    color: #e50914;
+    margin-right: 6px;
+    font-weight: 500;
+}
+
+/* Media Queries */
+@media (max-width: 1400px) {
+    .movies-grid {
+        grid-template-columns: repeat(5, 1fr);
+        padding: 20px 30px;
+    }
+}
+
+@media (max-width: 1200px) {
+    h1 {
+        font-size: 2.5rem;
+        letter-spacing: 6px;
+    }
+    
+    .search-container {
+        max-width: 500px;
+    }
+    
+    .search-input {
+        font-size: 0.9rem;
+        padding: 14px 45px 14px 18px;
+    }
+    
+    .movies-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (max-width: 992px) {
+    h1 {
+        font-size: 2.2rem;
+        letter-spacing: 5px;
+    }
+    
+    .tagline {
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+    }
+    
+    .search-container {
+        max-width: 450px;
+        margin-bottom: 30px;
+    }
+    
+    .search-input {
+        font-size: 0.85rem;
+        padding: 12px 40px 12px 16px;
+    }
+    
+    .filter-buttons {
+        gap: 8px;
+    }
+    
+    .filter-btn {
+        font-size: 0.75rem;
+        padding: 7px 14px;
+    }
+    
+    .movies-grid {
+        grid-template-columns: repeat(3, 1fr);
+        padding: 20px;
+        gap: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.8rem;
+        letter-spacing: 4px;
+        margin: 30px 0 8px;
+    }
+    
+    .tagline {
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        margin: 0 0 30px;
+    }
+    
+    .search-container {
+        max-width: 100%;
+        padding: 0 15px;
+        margin-bottom: 25px;
+    }
+    
+    .search-input {
+        font-size: 0.8rem;
+        padding: 11px 38px 11px 15px;
+    }
+    
+    .search-icon {
+        font-size: 1rem;
+        right: 15px;
+    }
+    
+    .filter-btn {
+        font-size: 0.7rem;
+        padding: 6px 12px;
+    }
+    
+    .movies-grid {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 15px;
+        gap: 15px;
+    }
+    
+    .movie-card.expanded {
+        grid-column: span 2;
+        grid-row: span 2;
+    }
+    
+    .expanded-top {
+        flex-direction: column;
+    }
+    
+    .expanded-left {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    
+    .expanded-left img {
+        width: 60%;
+        margin: 0 auto;
+        display: block;
+    }
+}
+
+@media (max-width: 576px) {
+    h1 {
+        font-size: 1.5rem;
+        letter-spacing: 3px;
+        margin: 25px 0 5px;
+    }
+    
+    .tagline {
+        font-size: 0.6rem;
+        padding: 8px 15px;
+        letter-spacing: 1.5px;
+    }
+    
+    .tagline .separator {
+        margin: 0 10px;
+    }
+    
+    .search-container {
+        margin-bottom: 20px;
+    }
+    
+    .search-input {
+        font-size: 0.75rem;
+        padding: 10px 35px 10px 14px;
+        border-radius: 25px;
+    }
+    
+    .search-icon {
+        font-size: 0.9rem;
+        right: 12px;
+    }
+    
+    .filter-buttons {
+        gap: 6px;
+        margin-top: 12px;
+    }
+    
+    .filter-btn {
+        font-size: 0.65rem;
+        padding: 6px 10px;
+    }
+    
+    .movies-grid {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 10px;
+        gap: 12px;
+    }
+    
+    .movie-compact {
+        padding: 10px;
+    }
+    
+    .movie-compact h2 {
+        font-size: 0.85rem;
+    }
+    
+    .movie-compact p {
+        font-size: 0.65rem;
+    }
+    
+    .movie-compact .stats {
+        font-size: 0.6rem;
+    }
+    
+    .movie-card.expanded {
+        grid-column: span 2;
+        grid-row: span 2;
+    }
+    
+    .expanded-info h2 {
+        font-size: 1rem;
+    }
+    
+    .expanded-info p {
+        font-size: 0.7rem;
+    }
+    
+    .stats {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .actions {
+        gap: 6px;
+    }
+    
+    .movie-card button {
+        font-size: 0.65rem;
+        padding: 7px 10px;
+    }
+}
+
+@media (max-width: 400px) {
+    .movies-grid {
+        grid-template-columns: 1fr;
+        padding: 8px;
+        gap: 10px;
+    }
+    
+    .movie-card.expanded {
+        grid-column: span 1;
+        grid-row: span 1;
+    }
+    
+    h1 {
+        font-size: 1.3rem;
+        letter-spacing: 2px;
+    }
+    
+    .tagline {
+        font-size: 0.55rem;
+    }
+}
+</style>
+</head>
+<body>
+
+<h1>Movie Collection</h1>
+<div class="tagline">
+    <span class="red-text">RATED BY REAL VIEWERS</span>
+    <span class="separator">|</span>
+    <span class="black-text">Visit Us For Authentic Reviews</span>
+</div>
+
+<div class="search-container">
+    <div class="search-wrapper">
+        <input type="text" class="search-input" id="searchInput" placeholder="Search movies by title, description..." oninput="searchMovies()">
+        <span class="search-icon">🔍</span>
+    </div>
+    <div class="filter-buttons">
+        <button class="filter-btn active" onclick="filterMovies(event, 'all')">All Movies</button>
+        <button class="filter-btn" onclick="filterMovies(event, 'recent')">Recent</button>
+    </div>
+</div>
+
+<div class="movies-grid" id="moviesGrid">
+    {% for movie in movies %}
+    <div class="movie-card" id="movie-{{ movie.id }}">
+        <!-- Compact View -->
+        <div class="movie-compact" onclick="toggleMovie({{ movie.id }})">
+            {% if movie.poster %}
+            <img src="{{ movie.poster.url }}" alt="{{ movie.title }}">
+            {% else %}
+            <img src="{% static 'default-poster.jpg' %}" alt="No Poster">
+            {% endif %}
+            <h2>{{ movie.title }}</h2>
+            <p>{{ movie.description }}</p>
+            <div class="stats">
+                <div class="stat-item">
+                    👍 <span class="likes">{{ movie.likes_count }}</span>
+                </div>
+                <div class="stat-item">
+                    👎 <span class="dislikes">{{ movie.dislikes_count }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expanded View -->
+        <div class="movie-expanded">
+            <div class="expanded-top">
+                <div class="expanded-left">
+                    {% if movie.poster %}
+                    <img src="{{ movie.poster.url }}" alt="{{ movie.title }}" onclick="toggleMovie({{ movie.id }})">
+                    {% else %}
+                    <img src="{% static 'default-poster.jpg' %}" alt="No Poster" onclick="toggleMovie({{ movie.id }})">
+                    {% endif %}
+                </div>
+                
+                <div class="expanded-info">
+                    <h2>{{ movie.title }}</h2>
+                    <p>{{ movie.description }}</p>
+                    
+                    <div class="stats">
+                        <div class="stat-item">
+                            👍 <span class="likes">{{ movie.likes_count }}</span>
+                        </div>
+                        <div class="stat-item">
+                            👎 <span class="dislikes">{{ movie.dislikes_count }}</span>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn-like" onclick="react(event, {{ movie.id }}, 'like')">👍 Like</button>
+                        <button class="btn-dislike" onclick="react(event, {{ movie.id }}, 'dislike')">👎 Dislike</button>
+                        <button class="btn-close" onclick="toggleMovie({{ movie.id }})">✕ Close</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comment-section">
+                <input type="text" placeholder="Add your comment..." id="comment-{{ movie.id }}">
+                <button class="btn-comment" onclick="comment(event, {{ movie.id }})">💬 Comment</button>
+            </div>
+
+            <ul class="comment-list">
+                {% for c in movie.comments.all %}
+                <li><strong>{{ c.user.username }}:</strong> {{ c.text }}</li>
+                {% empty %}
+                <li>No comments yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+function csrfToken() {
+    return '{{ csrf_token }}';
+}
+
+let allMovies = [];
+let currentFilter = 'all';
+
+// Initialize movies data
+document.addEventListener('DOMContentLoaded', function() {
+    allMovies = Array.from(document.querySelectorAll('.movie-card'));
+    console.log("✅ Page loaded, movies initialized"); // DEBUG
+});
+
+function searchMovies() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('.movie-card');
+    
+    cards.forEach(card => {
+        const title = card.querySelector('h2').textContent.toLowerCase();
+        const description = card.querySelector('p').textContent.toLowerCase();
+        
+        if (title.includes(searchTerm) || description.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function filterMovies(e, filter) {
+    currentFilter = filter;
+    const cards = Array.from(document.querySelectorAll('.movie-card'));
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    if (e && e.target) {
+        e.target.classList.add('active');
+    }
+    
+    let sortedCards = [...cards];
+    
+    switch(filter) {
+        case 'recent':
+            sortedCards.reverse();
+            break;
+        default:
+            break;
+    }
+    
+    const grid = document.getElementById('moviesGrid');
+    sortedCards.forEach(card => {
+        grid.appendChild(card);
+        const title = card.querySelector('h2').textContent.toLowerCase();
+        const description = card.querySelector('p').textContent.toLowerCase();
+        
+        if (searchTerm && !(title.includes(searchTerm) || description.includes(searchTerm))) {
+            card.style.display = 'none';
+        } else {
+            card.style.display = 'block';
+        }
+    });
+}
+
+function toggleMovie(movieId) {
+    const card = document.getElementById('movie-' + movieId);
+    const allCards = document.querySelectorAll('.movie-card');
+    
+    allCards.forEach(c => {
+        if (c.id !== 'movie-' + movieId) {
+            c.classList.remove('expanded');
+        }
+    });
+    
+    card.classList.toggle('expanded');
+    
+    if (card.classList.contains('expanded')) {
+        setTimeout(() => {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    }
+}
+
+// ✅ FIXED: Added missing closing parenthesis + error handling
+function react(e, movieId, action) {
+    if (e) e.stopPropagation();
+    console.log("🔥 REACT clicked:", movieId, action);
+    
+    fetch("/movies/react/", {  // ← FIXED: Added missing )
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json', 
+            'X-CSRFToken': csrfToken()
+        },
+        body: JSON.stringify({movie_id: movieId, action: action})
+    })
+    .then(res => {
+        console.log("📡 Status:", res.status);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    })
+    .then(data => {
+        console.log("✅ Success:", data);
+        const card = document.getElementById('movie-' + movieId);
+        const likes = card.querySelectorAll('.likes');
+        const dislikes = card.querySelectorAll('.dislikes');
+        likes.forEach(el => el.innerText = data.likes);
+        dislikes.forEach(el => el.innerText = data.dislikes);
+    })
+    .catch(error => {
+        console.error("❌ REACT ERROR:", error);
+        alert("Failed to react: " + error.message);
+    });
+}
+
+// ✅ FIXED: Added error handling
+function comment(e, movieId) {
+    if (e) e.stopPropagation();
+    const text = document.getElementById('comment-' + movieId).value;
+    if (!text.trim()) return;
+    
+    console.log("💬 COMMENT:", movieId, text);
+    
+    fetch("/movies/comment/", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json', 
+            'X-CSRFToken': csrfToken()
+        },
+        body: JSON.stringify({movie_id: movieId, comment: text})
+    })
+    .then(res => {
+        console.log("📡 Comment status:", res.status);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    })
+    .then(data => {
+        console.log("✅ Comment success:", data);
+        document.getElementById('comment-' + movieId).value = '';
+        location.reload();
+    })
+    .catch(error => {
+        console.error("❌ COMMENT ERROR:", error);
+        alert("Failed to comment: " + error.message);
+    });
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.movie-card').forEach(card => {
+            card.classList.remove('expanded');
+        });
+    }
+});
+</script>
+
+
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Movie App{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #141414;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navbar */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0));
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+
+        header.scrolled {
+            background-color: #141414;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 4%;
+            max-width: 1920px;
+            margin: auto;
+        }
+
+        .logo {
+            font-size: 30px;
+            font-weight: 700;
+            color: #e50914;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #e5e5e5;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #b3b3b3;
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #e50914;
+        }
+
+        /* Logout Button */
+        .logout-btn {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #e50914, #8b0000);
+            color: #fff;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #b20710, #ff0a16);
+            transform: translateY(-2px);
+        }
+
+        main {
+            flex: 1;
+            margin-top: 90px;
+            padding: 40px 4%;
+            max-width: 1920px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #000;
+            border-top: 1px solid #222;
+            padding: 60px 4%;
+        }
+
+        .footer-content {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .footer-links a {
+            color: #808080;
+            font-size: 13px;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+        }
+
+        .footer-note {
+            color: #808080;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header id="navbar">
+    <nav class="navbar">
+        <!-- Logo -->
+        <a href="{% url 'home' %}" class="logo">TICKIT</a>
+
+        <!-- Navigation Links -->
+        <ul class="nav-links">
+            <li><a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a></li>
+            <li><a href="{% url 'movies_list' %}" class="{% if request.resolver_match.url_name == 'movies_list' %}active{% endif %}">Movies</a></li>
+            <li><a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">About</a></li>
+            <li><a href="{% url 'contact' %}" class="{% if request.resolver_match.url_name == 'contact' %}active{% endif %}">Contact</a></li>
+        </ul>
+
+        <!-- Logout Button -->
+        <a href="{% url 'login' %}" class="logout-btn">Logout</a>
+    </nav>
+</header>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer>
+    <div class="footer-content">
+        <div class="footer-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'movies_list' %}">Browse Movies</a>
+            
+            <a href="{% url 'movies_list' %}">Collections</a>
+            <a href="{% url 'movies_list' %}">Recent movies</a>
+            <a href="{% url 'movies_list' %}">All</a>
+            <a href="{% url 'movies_list' %}">Explore</a>
+            <a href="{% url 'about' %}">Y Us?</a>
+
+            <a href="{% url 'about' %}">About Us</a>
+            <a href="{% url 'contact' %}">Contact</a>
+            <a href="#">Help & Support</a>
+            <a href="#">For Review</a>
+        </div>
+
+        <p class="footer-note">
+             © 2026 Movie Rating App. Your opinions, your ratings, your cinematic empire.
+        </p>
+    </div>
+</footer>
+
+<script>
+    window.addEventListener('scroll', () => {
+        document.getElementById('navbar')
+            .classList.toggle('scrolled', window.scrollY > 50);
+    });
+</script>
+
+</body>
+</html>

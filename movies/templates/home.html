@@ -1,0 +1,294 @@
+{% extends "bases.html" %}
+{% load static %}
+{% block content %}
+
+<style>
+/* ================= BASE FIX ================= */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Kill base container padding/max-width */
+.container, main, .wrapper, .content {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* ================= VARIABLES ================= */
+:root {
+    --bg-dark:#0b0b0b;
+    --red:#e50914;
+    --red-glow:rgba(229,9,20,.35);
+}
+
+/* ================= HERO ================= */
+.hero {
+    position: relative;
+    width: 100vw;
+    min-height: 100vh;
+    margin-left: calc(-50vw + 50%);
+    display: flex;
+    align-items: center;
+    padding: 80px 8%;
+    background: var(--bg-dark);
+    overflow: hidden;
+}
+
+/* ================= MARQUEE BACKGROUND ================= */
+.marquee-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    opacity: 0.4;
+}
+
+.marquee-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.perspective-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    transform: rotateX(55deg) rotateZ(45deg);
+}
+
+.inner-wrapper {
+    width: 100%;
+    transform: scale(1.2);
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.column.animate-down {
+    animation: moveDown 10s ease-in-out infinite alternate;
+}
+
+.column.animate-up {
+    animation: moveUp 15s ease-in-out infinite alternate;
+}
+
+@keyframes moveDown {
+    from { transform: translateY(-60px); }
+    to { transform: translateY(160px); }
+}
+@keyframes moveUp {
+    from { transform: translateY(60px); }
+    to { transform: translateY(-160px); }
+}
+
+.marquee-image {
+    aspect-ratio: 970 / 700;
+    width: 100%;
+    max-width: 200px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid rgba(229,9,20,.3);
+    box-shadow: 0 20px 40px rgba(229,9,20,.3);
+}
+
+/* ================= RED GRADIENT (MATCH IMAGE) ================= */
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            circle at 12% 35%,
+            rgba(229, 9, 20, 0.55) 0%,
+            rgba(229, 9, 20, 0.35) 28%,
+            rgba(229, 9, 20, 0.18) 45%,
+            transparent 65%
+        ),
+        linear-gradient(
+            90deg,
+            rgba(11,11,11,0.98) 0%,
+            rgba(11,11,11,0.92) 40%,
+            rgba(11,11,11,0.75) 58%,
+            rgba(11,11,11,0.35) 72%,
+            transparent 100%
+        );
+}
+
+/* ================= CONTENT ================= */
+.hero-content {
+    position: relative;
+    z-index: 3;
+    max-width: 680px;
+    color: #fff;
+}
+
+.brand-tag {
+    color: var(--red);
+    letter-spacing: 3px;
+    font-size: .85rem;
+    margin-bottom: 20px;
+}
+
+.hero h1 {
+    font-size: 4.5rem;
+    line-height: 1.1;
+}
+
+.hero h1 span {
+    color: var(--red);
+    text-shadow: 0 0 20px var(--red-glow);
+}
+
+.hero-subtitle {
+    font-size: 1.4rem;
+    color: #e5e5e5;
+    margin: 20px 0;
+}
+
+.hero-description {
+    color: #aaa;
+    line-height: 1.8;
+    margin-bottom: 30px;
+}
+
+/* ================= STATS ================= */
+.stats-row {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 30px;
+}
+
+.stat-number {
+    font-size: 2rem;
+    color: var(--red);
+    font-weight: bold;
+}
+
+.stat-label {
+    font-size: .85rem;
+    color: #888;
+}
+
+/* ================= BUTTONS ================= */
+.hero-buttons {
+    display: flex;
+    gap: 18px;
+}
+
+.btn {
+    padding: 16px 36px;
+    border-radius: 50px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #ff0a16, #b20710);
+    color: #fff;
+    box-shadow: 0 6px 25px var(--red-glow);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,.3);
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 768px) {
+    .hero h1 { font-size: 2.7rem; }
+    .grid-container { grid-template-columns: repeat(2,1fr); }
+}
+</style>
+
+<section class="hero">
+    <div class="marquee-bg">
+        <div id="marquee" class="marquee-container"></div>
+    </div>
+
+    <div class="hero-content">
+        
+
+        <h1>Judge  <span>Movie</span> , not people </h1>
+        <p class="hero-subtitle">Because someone has to tell them it’s trash… or treasure</p>
+
+        <p class="hero-description">
+            Join an exclusive community of film enthusiasts who appreciate the art of cinema.
+        </p>
+
+        <div class="stats-row">
+            <div>
+                <div class="stat-number">150K+</div>
+                <div class="stat-label">Members</div>
+            </div>
+            <div>
+                <div class="stat-number">50K+</div>
+                <div class="stat-label">Ratings</div>
+            </div>
+            <div>
+                <div class="stat-number">4.8★</div>
+                <div class="stat-label">Score</div>
+            </div>
+        </div>
+
+        <div class="hero-buttons">
+            <button class="btn btn-primary" onclick="location.href='{% url 'movies_list' %}'">Explore</button>
+            <button class="btn btn-secondary" onclick="location.href='{% url 'about' %}'">About Us</button>
+        </div>
+    </div>
+</section>
+
+<script>
+const config = {
+    images: [
+        'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1594908900066-3f47337549d8?w=400&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=400&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=400&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?w=400&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1616530940355-351fabd9524b?w=400&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1574267432644-f86a6c35e959?w=400&h=600&fit=crop',
+        'https://images.unsplash.com/photo-1595769816263-9b910be24d5f?w=400&h=600&fit=crop'
+    ],
+    cols: 4
+};
+
+const dup = [...config.images, ...config.images];
+const groupSize = Math.ceil(dup.length / config.cols);
+
+document.getElementById("marquee").innerHTML = `
+<div class="perspective-wrapper">
+  <div class="inner-wrapper">
+    <div class="grid-container">
+      ${Array.from({length: config.cols}).map((_, i) => `
+        <div class="column ${i%2?'animate-up':'animate-down'}">
+          ${dup.slice(i*groupSize,(i+1)*groupSize)
+            .map(src => `<img class="marquee-image" src="${src}">`).join('')}
+        </div>`).join('')}
+    </div>
+  </div>
+</div>`;
+</script>
+
+{% endblock %}
